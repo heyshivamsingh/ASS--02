@@ -1,0 +1,289 @@
+ASS-02
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the dataset
+df = pd.read_csv("C:\\Users\\Welcome\\Desktop\\shivam\\StudentsPerformance.csv")
+
+# Clean the data by removing rows with NaN values
+print(df.notnull())
+print(df.fillna(0))
+df_cleaned = df.dropna()
+
+# Save the cleaned DataFrame back to CSV
+df_cleaned.to_csv("C:\\Users\\Welcome\\Desktop\\shivam\\StudentsPerformance_cleaned.csv", index=False)
+print(df_cleaned)
+
+# Z-Score Calculation
+# Handling the case where std is 0 to avoid NaN values in Z-scores
+if df_cleaned['Math_Score'].std() != 0:
+    df_cleaned.loc[:, 'Math_Score_Z'] = (df_cleaned['Math_Score'] - df_cleaned['Math_Score'].mean()) / df_cleaned['Math_Score'].std()
+else:
+    df_cleaned.loc[:, 'Math_Score_Z'] = np.nan
+
+if df_cleaned['Reading_Score'].std() != 0:
+    df_cleaned.loc[:, 'Reading_Score_Z'] = (df_cleaned['Reading_Score'] - df_cleaned['Reading_Score'].mean()) / df_cleaned['Reading_Score'].std()
+else:
+    df_cleaned.loc[:, 'Reading_Score_Z'] = np.nan
+
+# Display Z-scores
+print("Z-Scores (Math_Score, Reading_Score):")
+print(df_cleaned[['Math_Score', 'Math_Score_Z', 'Reading_Score', 'Reading_Score_Z']])
+
+# IQR Calculation and Outlier Detection
+Q1_math = df_cleaned['Math_Score'].quantile(0.25)
+Q3_math = df_cleaned['Math_Score'].quantile(0.75)
+IQR_math = Q3_math - Q1_math
+lower_bound_math = Q1_math - 1.5 * IQR_math
+upper_bound_math = Q3_math + 1.5 * IQR_math
+
+Q1_reading = df_cleaned['Reading_Score'].quantile(0.25)
+Q3_reading = df_cleaned['Reading_Score'].quantile(0.75)
+IQR_reading = Q3_reading - Q1_reading
+lower_bound_reading = Q1_reading - 1.5 * IQR_reading
+upper_bound_reading = Q3_reading + 1.5 * IQR_reading
+
+# Find outliers based on IQR
+outliers_math = df_cleaned[(df_cleaned['Math_Score'] < lower_bound_math) | (df_cleaned['Math_Score'] > upper_bound_math)]
+outliers_reading = df_cleaned[(df_cleaned['Reading_Score'] < lower_bound_reading) | (df_cleaned['Reading_Score'] > upper_bound_reading)]
+
+# Display IQR and outliers
+print(f"IQR for Math Score: {IQR_math}")
+print(f"IQR for Reading Score: {IQR_reading}")
+print("\nOutliers for Math Scores:")
+print(outliers_math)
+print("\nOutliers for Reading Scores:")
+print(outliers_reading)
+
+# Plotting
+# Boxplot
+col = ['Math_Score', 'Reading_Score', 'Writing_Score']
+ax = df_cleaned.boxplot(column=col)
+ax.set_title("Boxplot of Student Scores")
+ax.set_xlabel("Subjects")
+ax.set_ylabel("Scores")
+
+# Scatter plot
+plt.figure(figsize=(10, 5))
+plt.scatter(df_cleaned['Math_Score'], df_cleaned['Reading_Score'], color='blue', alpha=0.5)
+plt.title("Scatter Plot of Math vs. Reading Scores")
+plt.xlabel("Math Score")
+plt.ylabel("Reading Score")
+
+# Show plots
+plt.show()
+
+
+OUTPUT-  
+
+PS C:\Users\Welcome\Desktop\shivam> & "C:/Program Files/Python312/python.exe" c:/Users/Welcome/Desktop/shivam/shi.py
+    Math_Score  Reading_Score  Writing_Score  Placement_Score  Placement_Offer_Count
+0         True           True           True             True                   True
+1         True           True           True             True                   True
+2         True           True           True             True                   True
+3         True           True           True             True                   True
+4         True           True           True             True                   True
+5         True           True           True             True                   True
+6         True           True           True             True                   True
+7         True           True           True             True                   True
+8         True           True           True             True                   True
+9         True           True           True             True                   True
+10        True           True           True             True                   True
+11        True           True           True             True                   True
+12        True           True           True             True                   True
+13        True           True           True             True                   True
+14        True           True           True             True                   True
+15        True           True           True             True                   True
+16        True           True           True             True                   True
+17        True           True           True             True                   True
+18        True           True           True             True                   True
+19        True           True           True             True                   True
+20        True           True           True             True                   True
+21        True           True           True             True                   True
+22        True           True           True             True                   True
+23        True           True           True             True                   True
+24        True           True           True             True                   True
+25        True           True           True             True                   True
+26        True           True           True             True                   True
+27        True           True           True             True                   True
+28        True           True           True             True                   True
+29        True           True           True             True                   True
+30        True           True           True             True                   True
+31        True           True           True             True                   True
+32        True           True           True             True                   True
+33        True           True           True            False                   True
+34        True           True           True            False                   True
+35        True           True          False             True                   True
+36        True          False           True             True                   True
+37        True           True          False             True                   True
+38        True          False           True             True                   True
+39        True           True          False             True                   True
+40        True          False          False             True                   True
+41        True           True           True             True                   True
+42        True           True           True            False                   True
+43        True           True           True             True                   True
+44        True           True           True             True                   True
+45        True          False           True            False                   True
+46        True           True           True             True                   True
+47        True           True           True             True                   True
+48        True           True          False             True                   True
+49        True          False           True            False                   True
+    Math_Score  Reading_Score  Writing_Score  Placement_Score  Placement_Offer_Count
+0           66           89.0           66.0            100.0                      1
+1           66           77.0           68.0             97.0                      0
+2           66           88.0           67.0             99.0                      2
+3           66           91.0           71.0             81.0                      3
+4           66           78.0           61.0             75.0                      0
+5           66           92.0           60.0             75.0                      0
+6           66           82.0           75.0             99.0                      1
+7           66           78.0           64.0             99.0                      1
+8           66           76.0           62.0             94.0                      2
+9           66           80.0           71.0             87.0                      3
+10          66           84.0           67.0             83.0                      1
+11          66           78.0           62.0             77.0                      0
+12          66           92.0           60.0             81.0                      3
+13          66           86.0           62.0             80.0                      3
+14          66           76.0           64.0             82.0                      0
+15          66           84.0           74.0             83.0                      1
+16          66           78.0           73.0             79.0                      0
+17          66           88.0           62.0             75.0                      3
+18          66           90.0           60.0             93.0                      4
+19          66           89.0           64.0             84.0                      4
+20          66           82.0           73.0             86.0                      2
+21          66           88.0           66.0             98.0                      0
+22          66           82.0           68.0             89.0                      0
+23          66           95.0           74.0             96.0                      2
+24          66           90.0           74.0             98.0                      2
+25          66           87.0           69.0             83.0                      2
+26          66           92.0           72.0             94.0                      3
+27          66           89.0           78.0             91.0                      0
+28          66           95.0           66.0             91.0                      3
+29          66           87.0           76.0            100.0                      2
+30          66           83.0           79.0             94.0                      0
+31          66           89.0           63.0             86.0                      3
+32          66           87.0           64.0             81.0                      3
+33          66           75.0           66.0              0.0                      2
+34          66           81.0           72.0              0.0                      0
+35          66           83.0            0.0             91.0                      2
+36          66            0.0           70.0             79.0                      0
+37          66           86.0            0.0             91.0                      4
+38          66            0.0           72.0             98.0                      1
+39          66           85.0            0.0             91.0                      1
+40          66            0.0            0.0             91.0                      1
+41          66           91.0           61.0             76.0                      2
+42          66           82.0           69.0              0.0                      4
+43          66           77.0           72.0             96.0                      0
+44          66           77.0           80.0             97.0                      3
+45          66            0.0           65.0              0.0                      0
+46          66           79.0           71.0             75.0                      3
+47          66           84.0           71.0             75.0                      0
+48          66           81.0            0.0             93.0                      4
+49          66            0.0           70.0              0.0                      3
+    Math_Score  Reading_Score  Writing_Score  Placement_Score  Placement_Offer_Count
+0           66           89.0           66.0            100.0                      1
+1           66           77.0           68.0             97.0                      0
+2           66           88.0           67.0             99.0                      2
+3           66           91.0           71.0             81.0                      3
+4           66           78.0           61.0             75.0                      0
+5           66           92.0           60.0             75.0                      0
+6           66           82.0           75.0             99.0                      1
+7           66           78.0           64.0             99.0                      1
+8           66           76.0           62.0             94.0                      2
+9           66           80.0           71.0             87.0                      3
+10          66           84.0           67.0             83.0                      1
+11          66           78.0           62.0             77.0                      0
+12          66           92.0           60.0             81.0                      3
+13          66           86.0           62.0             80.0                      3
+14          66           76.0           64.0             82.0                      0
+15          66           84.0           74.0             83.0                      1
+16          66           78.0           73.0             79.0                      0
+17          66           88.0           62.0             75.0                      3
+18          66           90.0           60.0             93.0                      4
+19          66           89.0           64.0             84.0                      4
+20          66           82.0           73.0             86.0                      2
+21          66           88.0           66.0             98.0                      0
+22          66           82.0           68.0             89.0                      0
+23          66           95.0           74.0             96.0                      2
+24          66           90.0           74.0             98.0                      2
+25          66           87.0           69.0             83.0                      2
+26          66           92.0           72.0             94.0                      3
+27          66           89.0           78.0             91.0                      0
+28          66           95.0           66.0             91.0                      3
+29          66           87.0           76.0            100.0                      2
+30          66           83.0           79.0             94.0                      0
+31          66           89.0           63.0             86.0                      3
+32          66           87.0           64.0             81.0                      3
+41          66           91.0           61.0             76.0                      2
+43          66           77.0           72.0             96.0                      0
+44          66           77.0           80.0             97.0                      3
+46          66           79.0           71.0             75.0                      3
+47          66           84.0           71.0             75.0                      0
+c:\Users\Welcome\Desktop\shivam\shi.py:22: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df_cleaned.loc[:, 'Math_Score_Z'] = np.nan
+c:\Users\Welcome\Desktop\shivam\shi.py:25: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df_cleaned.loc[:, 'Reading_Score_Z'] = (df_cleaned['Reading_Score'] - df_cleaned['Reading_Score'].mean()) / df_cleaned['Reading_Score'].std()
+Z-Scores (Math_Score, Reading_Score):
+    Math_Score  Math_Score_Z  Reading_Score  Reading_Score_Z
+0           66           NaN           89.0         0.697168
+1           66           NaN           77.0        -1.394335
+2           66           NaN           88.0         0.522876
+3           66           NaN           91.0         1.045751
+4           66           NaN           78.0        -1.220043
+5           66           NaN           92.0         1.220043
+6           66           NaN           82.0        -0.522876
+7           66           NaN           78.0        -1.220043
+8           66           NaN           76.0        -1.568627
+9           66           NaN           80.0        -0.871460
+10          66           NaN           84.0        -0.174292
+11          66           NaN           78.0        -1.220043
+12          66           NaN           92.0         1.220043
+13          66           NaN           86.0         0.174292
+14          66           NaN           76.0        -1.568627
+15          66           NaN           84.0        -0.174292
+16          66           NaN           78.0        -1.220043
+17          66           NaN           88.0         0.522876
+18          66           NaN           90.0         0.871460
+19          66           NaN           89.0         0.697168
+20          66           NaN           82.0        -0.522876
+21          66           NaN           88.0         0.522876
+22          66           NaN           82.0        -0.522876
+23          66           NaN           95.0         1.742919
+24          66           NaN           90.0         0.871460
+25          66           NaN           87.0         0.348584
+26          66           NaN           92.0         1.220043
+27          66           NaN           89.0         0.697168
+28          66           NaN           95.0         1.742919
+29          66           NaN           87.0         0.348584
+30          66           NaN           83.0        -0.348584
+31          66           NaN           89.0         0.697168
+32          66           NaN           87.0         0.348584
+41          66           NaN           91.0         1.045751
+43          66           NaN           77.0        -1.394335
+44          66           NaN           77.0        -1.394335
+46          66           NaN           79.0        -1.045751
+47          66           NaN           84.0        -0.174292
+IQR for Math Score: 0.0
+IQR for Reading Score: 9.75
+
+Outliers for Math Scores:
+Empty DataFrame
+Columns: [Math_Score, Reading_Score, Writing_Score, Placement_Score, Placement_Offer_Count, Math_Score_Z, Reading_Score_Z]
+Index: []
+
+Outliers for Reading Scores:
+Empty DataFrame
+Columns: [Math_Score, Reading_Score, Writing_Score, Placement_Score, Placement_Offer_Count, Math_Score_Z, Reading_Score_Z]
+Index: []
+
+
+
