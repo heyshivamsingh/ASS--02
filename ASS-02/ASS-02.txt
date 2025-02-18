@@ -1,0 +1,141 @@
+ASS-02
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the dataset
+df = pd.read_csv(r"D:\SHIVAM-PROJECT\py\data\StudentsPerformance.csv")
+
+# Clean the data by removing rows with NaN values
+# print(df.notnull())
+# print(df.fillna(0))
+# df_cleaned = df.dropna()
+
+
+# Plotting
+# Boxplot
+col = ['Math_Score', 'Reading_Score', 'Writing_Score','Placement_Score']
+print(df.boxplot(col))
+
+
+# Scatter plot
+plt.figure(figsize=(18, 10))
+plt.scatter(df['Math_Score'], df['Reading_Score'], color='blue', alpha=0.5)
+plt.title("Scatter Plot of Math vs. Reading Scores")
+plt.xlabel("Math Score")
+plt.ylabel("Reading Score")
+
+# # Show plots
+plt.show()
+
+# Z-Score Calculation
+# Handling the case where std is 0 to avoid NaN values in Z-scores
+if df['Math_Score'].std() != 0:
+    df.loc[:, 'Math_Score_Z'] = (df['Math_Score'] - df['Math_Score'].mean()) / df['Math_Score'].std()
+else:
+    df.loc[:, 'Math_Score_Z'] = np.nan
+
+if df['Reading_Score'].std() != 0:
+    df.loc[:, 'Reading_Score_Z'] = (df['Reading_Score'] - df['Reading_Score'].mean()) / df['Reading_Score'].std()
+else:
+    df.loc[:, 'Reading_Score_Z'] = np.nan
+
+# Display Z-scores
+print("Z-Scores (Math_Score, Reading_Score):")
+print(df[['Math_Score', 'Math_Score_Z', 'Reading_Score', 'Reading_Score_Z']])
+
+# IQR Calculation and Outlier Detection
+Q1_math = df['Math_Score'].quantile(0.25)
+Q3_math = df['Math_Score'].quantile(0.75)
+IQR_math = Q3_math - Q1_math
+lower_bound_math = Q1_math - 1.5 * IQR_math
+upper_bound_math = Q3_math + 1.5 * IQR_math
+
+Q1_reading = df['Reading_Score'].quantile(0.25)
+Q3_reading = df['Reading_Score'].quantile(0.75)
+IQR_reading = Q3_reading - Q1_reading
+lower_bound_reading = Q1_reading - 1.5 * IQR_reading
+upper_bound_reading = Q3_reading + 1.5 * IQR_reading
+
+# Find outliers based on IQR
+outliers_math = df[(df['Math_Score'] < lower_bound_math) | (df['Math_Score'] > upper_bound_math)]
+outliers_reading = df[(df['Reading_Score'] < lower_bound_reading) | (df['Reading_Score'] > upper_bound_reading)]
+
+# Display IQR and outliers
+print(f"IQR for Math Score: {IQR_math}")
+print(f"IQR for Reading Score: {IQR_reading}")
+print("\nOutliers for Math Scores:")
+print(outliers_math)
+print("\nOutliers for Reading Scores:")
+print(outliers_reading)
+
+
+OUTPUT-  
+
+PS D:\SHIVAM-PROJECT\py\data> python -u "d:\SHIVAM-PROJECT\py\data\tempCodeRunnerFile.python"
+Axes(0.125,0.11;0.775x0.77)
+Z-Scores (Math_Score, Reading_Score):
+    Math_Score  Math_Score_Z  Reading_Score  Reading_Score_Z
+0           66     -0.353090           89.0         0.141623
+1           76      0.195187           77.0        -0.745882
+2          156      4.581402           88.0         0.067664
+3           70     -0.133780           91.0         0.289541
+4           66     -0.353090           78.0        -0.671923
+5           80      0.414497           92.0         0.363500
+6           66     -0.353090           82.0        -0.376088
+7           66     -0.353090           78.0        -0.671923
+8           66     -0.353090           76.0        -0.819841
+9           76      0.195187           80.0        -0.524006
+10          66     -0.353090           84.0        -0.228171
+11          76      0.195187           78.0        -0.671923
+12          66     -0.353090           92.0         0.363500
+13          66     -0.353090           86.0        -0.080253
+14          66     -0.353090           76.0        -0.819841
+15          76      0.195187           84.0        -0.228171
+16          66     -0.353090           78.0        -0.671923
+17          80      0.414497           88.0         0.067664
+18          66     -0.353090           90.0         0.215582
+19          66     -0.353090           89.0         0.141623
+20         160      4.800713           82.0        -0.376088
+21          66     -0.353090           88.0         0.067664
+22          75      0.140359           82.0        -0.376088
+23          66     -0.353090           95.0         0.585376
+24          66     -0.353090           90.0         0.215582
+25          73      0.030704           87.0        -0.006294
+26          66     -0.353090           92.0         0.363500
+27          66     -0.353090           89.0         0.141623
+28          66     -0.353090           95.0         0.585376
+29          66     -0.353090           87.0        -0.006294
+30          76      0.195187           83.0        -0.302129
+31          66     -0.353090           89.0         0.141623
+32          66     -0.353090           87.0        -0.006294
+33          66     -0.353090           75.0        -0.893800
+34          66     -0.353090           81.0        -0.450047
+35          66     -0.353090           83.0        -0.302129
+36          76      0.195187          150.0         4.653108
+37          66     -0.353090           86.0        -0.080253
+38          66     -0.353090          140.0         3.913521
+39          66     -0.353090           85.0        -0.154212
+40          76      0.195187            NaN              NaN
+41          66     -0.353090           91.0         0.289541
+42          66     -0.353090           82.0        -0.376088
+43          66     -0.353090           77.0        -0.745882
+44          76      0.195187           77.0        -0.745882
+45          66     -0.353090            NaN              NaN
+46          66     -0.353090           79.0        -0.597965
+47          66     -0.353090           84.0        -0.228171
+48          76      0.195187           81.0        -0.450047
+49          66     -0.353090            NaN              NaN
+IQR for Math Score: 9.75
+IQR for Reading Score: 8.5
+
+Outliers for Math Scores:
+    Math_Score  Reading_Score  Writing_Score  Placement_Score  Placement_Offer_Count  Math_Score_Z  Reading_Score_Z
+2          156           88.0           67.0             99.0                      2      4.581402         0.067664
+20         160           82.0           73.0             86.0                      2      4.800713        -0.376088
+
+Outliers for Reading Scores:
+    Math_Score  Reading_Score  Writing_Score  Placement_Score  Placement_Offer_Count  Math_Score_Z  Reading_Score_Z
+36          76          150.0           70.0             79.0                      0      0.195187         4.653108
+38          66          140.0           72.0             98.0                      1     -0.353090         3.913521
